@@ -14,4 +14,5 @@ public interface NotaRepository extends JpaRepository<Nota, Integer> {
     List<Nota> findByEmpresaId(Integer empresaId);
     List<Nota> findByStatus(StatusNota status);
     List<Nota> findByDataVencimentoBetween(LocalDate inicio, LocalDate fim);
+    long countByStatus(StatusNota status);
 }
