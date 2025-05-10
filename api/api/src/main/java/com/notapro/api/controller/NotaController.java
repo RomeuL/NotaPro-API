@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.notapro.api.dto.NotaDTO;
 import com.notapro.api.model.enums.StatusNota;
 import com.notapro.api.service.NotaService;
+import com.notapro.api.service.RealTimeNotaService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class NotaController {
     
     private final NotaService notaService;
+    private final RealTimeNotaService realTimeNotaService;
     
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -69,6 +71,7 @@ public class NotaController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NotaDTO> createNota(@Valid @RequestBody NotaDTO notaDTO) {
         NotaDTO savedNota = notaService.save(notaDTO);
+        realTimeNotaService.atualizarEstatisticasAgora();
         return ResponseEntity.status(HttpStatus.CREATED).body(savedNota);
     }
     
@@ -88,6 +91,7 @@ public class NotaController {
         }
         
         notaService.delete(id);
+        realTimeNotaService.atualizarEstatisticasAgora();
         return ResponseEntity.noContent().build();
     }
 }
