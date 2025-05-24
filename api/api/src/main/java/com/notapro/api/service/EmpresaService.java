@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import com.notapro.api.dto.EmpresaDTO;
+import com.notapro.api.dto.empresa.EmpresaInputDTO;
+import com.notapro.api.dto.empresa.EmpresaOutputDTO;
 import com.notapro.api.model.Empresa;
 import com.notapro.api.repository.EmpresaRepository;
 
@@ -20,34 +21,34 @@ public class EmpresaService {
     private final EmpresaRepository empresaRepository;
     private final ModelMapper modelMapper;
     
-    public List<EmpresaDTO> findAll() {
+    public List<EmpresaOutputDTO> findAll() {
         return empresaRepository.findAll().stream()
-                .map(this::convertToDTO)
+                .map(this::convertToOutputDTO)
                 .collect(Collectors.toList());
     }
     
-    public Optional<EmpresaDTO> findById(Integer id) {
+    public Optional<EmpresaOutputDTO> findById(Integer id) {
         return empresaRepository.findById(id)
-                .map(this::convertToDTO);
+                .map(this::convertToOutputDTO);
     }
     
-    public Optional<EmpresaDTO> findByCnpj(String cnpj) {
+    public Optional<EmpresaOutputDTO> findByCnpj(String cnpj) {
         return empresaRepository.findByCnpj(cnpj)
-                .map(this::convertToDTO);
+                .map(this::convertToOutputDTO);
     }
     
-    public EmpresaDTO save(EmpresaDTO empresaDTO) {
-        Empresa empresa = convertToEntity(empresaDTO);
+    public EmpresaOutputDTO save(EmpresaInputDTO empresaInputDTO) {
+        Empresa empresa = convertToEntity(empresaInputDTO);
         Empresa savedEmpresa = empresaRepository.save(empresa);
-        return convertToDTO(savedEmpresa);
+        return convertToOutputDTO(savedEmpresa);
     }
     
-    public Optional<EmpresaDTO> update(Integer id, EmpresaDTO empresaDTO) {
+    public Optional<EmpresaOutputDTO> update(Integer id, EmpresaInputDTO empresaInputDTO) {
         return empresaRepository.findById(id)
                 .map(existingEmpresa -> {
-                    existingEmpresa.setNome(empresaDTO.getNome());
-                    existingEmpresa.setCnpj(empresaDTO.getCnpj());
-                    return convertToDTO(empresaRepository.save(existingEmpresa));
+                    existingEmpresa.setNome(empresaInputDTO.getNome());
+                    existingEmpresa.setCnpj(empresaInputDTO.getCnpj());
+                    return convertToOutputDTO(empresaRepository.save(existingEmpresa));
                 });
     }
     
@@ -55,11 +56,11 @@ public class EmpresaService {
         empresaRepository.deleteById(id);
     }
     
-    private EmpresaDTO convertToDTO(Empresa empresa) {
-        return modelMapper.map(empresa, EmpresaDTO.class);
+    private EmpresaOutputDTO convertToOutputDTO(Empresa empresa) {
+        return modelMapper.map(empresa, EmpresaOutputDTO.class);
     }
     
-    private Empresa convertToEntity(EmpresaDTO empresaDTO) {
-        return modelMapper.map(empresaDTO, Empresa.class);
+    private Empresa convertToEntity(EmpresaInputDTO empresaInputDTO) {
+        return modelMapper.map(empresaInputDTO, Empresa.class);
     }
 }

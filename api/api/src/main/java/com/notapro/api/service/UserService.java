@@ -8,7 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.notapro.api.dto.UserDTO;
+import com.notapro.api.dto.user.UserInputDTO;
+import com.notapro.api.dto.user.UserOutputDTO;
 import com.notapro.api.model.User;
 import com.notapro.api.repository.UserRepository;
 
@@ -22,39 +23,39 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
     
-    public List<UserDTO> findAll() {
+    public List<UserOutputDTO> findAll() {
         return userRepository.findAll().stream()
-                .map(this::convertToDTO)
+                .map(this::convertToOutputDTO)
                 .collect(Collectors.toList());
     }
     
-    public Optional<UserDTO> findById(Integer id) {
+    public Optional<UserOutputDTO> findById(Integer id) {
         return userRepository.findById(id)
-                .map(this::convertToDTO);
+                .map(this::convertToOutputDTO);
     }
     
-    public Optional<UserDTO> findByEmail(String email) {
+    public Optional<UserOutputDTO> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .map(this::convertToDTO);
+                .map(this::convertToOutputDTO);
     }
     
-    public UserDTO save(UserDTO userDTO) {
-        User user = convertToEntity(userDTO);
-        user.setSenha(passwordEncoder.encode(userDTO.getSenha()));
+    public UserOutputDTO save(UserInputDTO userInputDTO) {
+        User user = convertToEntity(userInputDTO);
+        user.setSenha(passwordEncoder.encode(userInputDTO.getSenha()));
         User savedUser = userRepository.save(user);
-        return convertToDTO(savedUser);
+        return convertToOutputDTO(savedUser);
     }
     
-    public Optional<UserDTO> update(Integer id, UserDTO userDTO) {
+    public Optional<UserOutputDTO> update(Integer id, UserInputDTO userInputDTO) {
         return userRepository.findById(id)
                 .map(existingUser -> {
-                    existingUser.setNome(userDTO.getNome());
-                    existingUser.setEmail(userDTO.getEmail());
-                    if (userDTO.getSenha() != null && !userDTO.getSenha().isEmpty()) {
-                        existingUser.setSenha(passwordEncoder.encode(userDTO.getSenha()));
+                    existingUser.setNome(userInputDTO.getNome());
+                    existingUser.setEmail(userInputDTO.getEmail());
+                    if (userInputDTO.getSenha() != null && !userInputDTO.getSenha().isEmpty()) {
+                        existingUser.setSenha(passwordEncoder.encode(userInputDTO.getSenha()));
                     }
-                    existingUser.setRole(userDTO.getRole());
-                    return convertToDTO(userRepository.save(existingUser));
+                    existingUser.setRole(userInputDTO.getRole());
+                    return convertToOutputDTO(userRepository.save(existingUser));
                 });
     }
     
@@ -62,13 +63,11 @@ public class UserService {
         userRepository.deleteById(id);
     }
     
-    private UserDTO convertToDTO(User user) {
-        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-        userDTO.setSenha(null); // Não retornamos a senha
-        return userDTO;
+    private UserOutputDTO convertToOutputDTO(User user) {
+        return modelMapper.map(user, UserOutputDTO.class);
     }
     
-    private User convertToEntity(UserDTO userDTO) {
-        return modelMapper.map(userDTO, User.class);
+    private User convertToEntity(UserInputDTO userInputDTO) {
+        return modelMapper.map(userInputDTO, User.class);
     }
 }

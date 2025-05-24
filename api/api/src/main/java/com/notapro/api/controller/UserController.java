@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.notapro.api.dto.UserDTO;
+import com.notapro.api.dto.user.UserInputDTO;
+import com.notapro.api.dto.user.UserOutputDTO;
 import com.notapro.api.service.UserService;
 
 import jakarta.validation.Valid;
@@ -27,13 +28,13 @@ public class UserController {
     
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<UserOutputDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
     
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @userSecurity.isUserSelf(#id)")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<UserOutputDTO> getUserById(@PathVariable Integer id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -41,8 +42,10 @@ public class UserController {
     
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @userSecurity.isUserSelf(#id)")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Integer id, @Valid @RequestBody UserDTO userDTO) {
-        return userService.update(id, userDTO)
+    public ResponseEntity<UserOutputDTO> updateUser(
+            @PathVariable Integer id, 
+            @Valid @RequestBody UserInputDTO userInputDTO) {
+        return userService.update(id, userInputDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

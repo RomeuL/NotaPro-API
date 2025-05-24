@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.notapro.api.dto.EmpresaDTO;
+import com.notapro.api.dto.empresa.EmpresaInputDTO;
+import com.notapro.api.dto.empresa.EmpresaOutputDTO;
 import com.notapro.api.repository.EmpresaRepository;
 import com.notapro.api.service.EmpresaService;
 
@@ -30,12 +31,12 @@ public class EmpresaController {
     private final EmpresaRepository empresaRepository;
     
     @GetMapping
-    public ResponseEntity<List<EmpresaDTO>> getAllEmpresas() {
+    public ResponseEntity<List<EmpresaOutputDTO>> getAllEmpresas() {
         return ResponseEntity.ok(empresaService.findAll());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<EmpresaDTO> getEmpresaById(@PathVariable Integer id) {
+    public ResponseEntity<EmpresaOutputDTO> getEmpresaById(@PathVariable Integer id) {
         return empresaService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -43,21 +44,23 @@ public class EmpresaController {
     
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createEmpresa(@Valid @RequestBody EmpresaDTO empresaDTO) {
-        if (empresaRepository.existsByCnpj(empresaDTO.getCnpj())) {
+    public ResponseEntity<?> createEmpresa(@Valid @RequestBody EmpresaInputDTO empresaInputDTO) {
+        if (empresaRepository.existsByCnpj(empresaInputDTO.getCnpj())) {
             return ResponseEntity
                     .badRequest()
                     .body("Erro: CNPJ já está cadastrado!");
         }
         
-        EmpresaDTO savedEmpresa = empresaService.save(empresaDTO);
+        EmpresaOutputDTO savedEmpresa = empresaService.save(empresaInputDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmpresa);
     }
     
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmpresaDTO> updateEmpresa(@PathVariable Integer id, @Valid @RequestBody EmpresaDTO empresaDTO) {
-        return empresaService.update(id, empresaDTO)
+    public ResponseEntity<EmpresaOutputDTO> updateEmpresa(
+            @PathVariable Integer id, 
+            @Valid @RequestBody EmpresaInputDTO empresaInputDTO) {
+        return empresaService.update(id, empresaInputDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

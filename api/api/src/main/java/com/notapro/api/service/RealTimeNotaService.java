@@ -1,7 +1,6 @@
 package com.notapro.api.service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.notapro.api.model.enums.StatusNota;
-import com.notapro.api.repository.EmpresaRepository;
 import com.notapro.api.repository.NotaRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -24,7 +22,6 @@ public class RealTimeNotaService {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final NotaRepository notaRepository;
-    private final EmpresaRepository empresaRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(RealTimeNotaService.class);
 
@@ -34,8 +31,6 @@ public class RealTimeNotaService {
     private BigDecimal valorTotalNotas = BigDecimal.ZERO;
     private BigDecimal valorTotalPendente = BigDecimal.ZERO;
     private BigDecimal valorTotalPago = BigDecimal.ZERO;
-    private BigDecimal valorMedioPorNota = BigDecimal.ZERO;
-    private long totalEmpresas;
 
     @PostConstruct
     public void startThread() {
@@ -43,7 +38,7 @@ public class RealTimeNotaService {
             while (true) {
                 try {
                     atualizarEstatisticas();
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(43200);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -71,12 +66,6 @@ public class RealTimeNotaService {
                 .map(nota -> nota.getValor())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
-        valorMedioPorNota = totalNotas > 0 
-                ? valorTotalNotas.divide(BigDecimal.valueOf(totalNotas), 2, RoundingMode.HALF_UP) 
-                : BigDecimal.ZERO;
-        
-        totalEmpresas = empresaRepository.count();
-        
         logger.info("Estatísticas atualizadas: Total Notas={}, Pendentes={}, Pagas={}, Valor Total={}",
                 totalNotas, notasPendentes, notasPagas, valorTotalNotas);
     }
@@ -95,8 +84,6 @@ public class RealTimeNotaService {
     public BigDecimal getValorTotalNotas() { return valorTotalNotas; }
     public BigDecimal getValorTotalPendente() { return valorTotalPendente; }
     public BigDecimal getValorTotalPago() { return valorTotalPago; }
-    public BigDecimal getValorMedioPorNota() { return valorMedioPorNota; }
-    public long getTotalEmpresas() { return totalEmpresas; }
 
     @PreDestroy
     public void shutdown() {

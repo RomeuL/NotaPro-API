@@ -16,6 +16,7 @@ public class CorsConfig {
         
         config.setAllowCredentials(true);
         
+        config.addAllowedOriginPattern("http://localhost:3000");
         config.addAllowedOriginPattern("http://192.168.3.7:*");
         config.addAllowedOriginPattern("https://notapro.romeu.dev.br");
         config.addAllowedOriginPattern("http://notapro.romeu.dev.br");

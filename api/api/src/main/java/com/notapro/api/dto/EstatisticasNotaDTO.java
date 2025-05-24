@@ -16,6 +16,4 @@ public class EstatisticasNotaDTO {
     private BigDecimal valorTotalNotas;
     private BigDecimal valorTotalPendente;
     private BigDecimal valorTotalPago;
-    private BigDecimal valorMedioPorNota;
-    private long totalEmpresas;
 }

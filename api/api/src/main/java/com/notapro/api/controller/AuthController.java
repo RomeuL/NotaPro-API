@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.notapro.api.dto.AuthRequestDTO;
 import com.notapro.api.dto.AuthResponseDTO;
-import com.notapro.api.dto.UserDTO;
+import com.notapro.api.dto.user.UserInputDTO;
+import com.notapro.api.dto.user.UserOutputDTO;
 import com.notapro.api.model.User;
 import com.notapro.api.repository.UserRepository;
 import com.notapro.api.security.jwt.JwtUtils;
@@ -32,9 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
     
     private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final JwtUtils jwtUtils;
     private final EmailService emailService;
     
     @PostMapping("/login")
@@ -61,14 +62,14 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDTO userDTO) {
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserInputDTO userInputDTO) {
+        if (userRepository.existsByEmail(userInputDTO.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body("Erro: Email já está em uso!");
         }
         
-        UserDTO savedUser = userService.save(userDTO);
+        UserOutputDTO savedUser = userService.save(userInputDTO);
         
         try {
             emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getNome());

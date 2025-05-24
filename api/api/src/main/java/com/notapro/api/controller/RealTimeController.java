@@ -29,9 +29,7 @@ public class RealTimeController {
                 realTimeNotaService.getNotasPagas(),
                 realTimeNotaService.getValorTotalNotas(),
                 realTimeNotaService.getValorTotalPendente(),
-                realTimeNotaService.getValorTotalPago(),
-                realTimeNotaService.getValorMedioPorNota(),
-                realTimeNotaService.getTotalEmpresas()
+                realTimeNotaService.getValorTotalPago()
         );
         
         log.info("Estatísticas solicitadas: {}", estatisticas);
