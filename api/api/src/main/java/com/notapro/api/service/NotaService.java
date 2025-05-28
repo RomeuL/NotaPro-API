@@ -65,9 +65,10 @@ public class NotaService {
     }
     
     public Optional<NotaOutputDTO> update(Integer id, NotaInputDTO notaInputDTO) {
-        validateNota(notaInputDTO);
+        validateNotaForUpdate(id, notaInputDTO);
         return notaRepository.findById(id)
                 .map(existingNota -> {
+                    existingNota.setNumeroNota(notaInputDTO.getNumeroNota());
                     existingNota.setDescricao(notaInputDTO.getDescricao());
                     
                     Empresa empresa = empresaRepository.findById(notaInputDTO.getEmpresaId())
@@ -91,13 +92,18 @@ public class NotaService {
                 });
     }
     
-    public void delete(Integer id) {
-        notaRepository.deleteById(id);
+    public Optional<NotaOutputDTO> findByNumeroNota(String numeroNota) {
+        return notaRepository.findByNumeroNota(numeroNota)
+                .map(this::convertToOutputDTO);
     }
     
     private void validateNota(NotaInputDTO notaInputDTO) {
         empresaRepository.findById(notaInputDTO.getEmpresaId())
                 .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada"));
+        
+        if (notaRepository.existsByNumeroNota(notaInputDTO.getNumeroNota())) {
+            throw new IllegalArgumentException("Número da nota já existe");
+        }
         
         if (notaInputDTO.getTipoPagamento() == TipoPagamento.BOLETO && 
                 (notaInputDTO.getNumeroBoleto() == null || notaInputDTO.getNumeroBoleto().trim().isEmpty())) {
@@ -122,5 +128,23 @@ public class NotaService {
         }
         
         return nota;
+    }
+    
+    private void validateNotaForUpdate(Integer id, NotaInputDTO notaInputDTO) {
+        empresaRepository.findById(notaInputDTO.getEmpresaId())
+                .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada"));
+        
+        Optional<Nota> notaComMesmoNumero = notaRepository.findByNumeroNota(notaInputDTO.getNumeroNota());
+        if (notaComMesmoNumero.isPresent() && !notaComMesmoNumero.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Número da nota já existe");
+        }
+        
+        if (notaInputDTO.getTipoPagamento() == TipoPagamento.BOLETO && 
+                (notaInputDTO.getNumeroBoleto() == null || notaInputDTO.getNumeroBoleto().trim().isEmpty())) {
+            throw new IllegalArgumentException("Número do boleto é obrigatório para pagamento via boleto");
+        }
+    }
+    public void delete(Integer id) {
+        notaRepository.deleteById(id);
     }
 }

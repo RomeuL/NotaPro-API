@@ -13,6 +13,7 @@ ENV DB_MIN_IDLE=5
 ENV MAIL_USERNAME=mail@example.com
 ENV MAIL_PASSWORD=password
 ENV SERVER_PORT=8056
+ENV CORS_ALLOWED_ORIGINS=https://notapro.romeu.dev.br
 
 EXPOSE 8056
 

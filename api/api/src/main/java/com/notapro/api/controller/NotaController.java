@@ -100,4 +100,12 @@ public class NotaController {
         realTimeNotaService.atualizarEstatisticasAgora();
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/numero/{numeroNota}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<NotaOutputDTO> getNotaByNumero(@PathVariable String numeroNota) {
+        return notaService.findByNumeroNota(numeroNota)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

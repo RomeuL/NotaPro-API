@@ -1,5 +1,6 @@
 package com.notapro.api.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -9,6 +10,9 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 public class CorsConfig {
 
+    @Value("${app.cors.allowed-origins:localhost:3000}")
+    private String allowedOrigins;
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -16,10 +20,10 @@ public class CorsConfig {
         
         config.setAllowCredentials(true);
         
-        config.addAllowedOriginPattern("http://localhost:3000");
-        config.addAllowedOriginPattern("http://192.168.3.7:*");
-        config.addAllowedOriginPattern("https://notapro.romeu.dev.br");
-        config.addAllowedOriginPattern("http://notapro.romeu.dev.br");
+        String[] origins = allowedOrigins.split(",");
+        for (String origin : origins) {
+            config.addAllowedOriginPattern(origin.trim());
+        }
         
         config.addAllowedHeader("*");
         

@@ -21,12 +21,30 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         
+        modelMapper.getConfiguration()
+                .setFieldMatchingEnabled(true)
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+        
         modelMapper.createTypeMap(User.class, UserOutputDTO.class);
-        modelMapper.createTypeMap(UserInputDTO.class, User.class);
+        modelMapper.createTypeMap(UserInputDTO.class, User.class)
+                .addMappings(mapper -> {
+                    mapper.skip(User::setCreatedAt);
+                    mapper.skip(User::setUpdatedAt);
+                });
+        
         modelMapper.createTypeMap(Empresa.class, EmpresaOutputDTO.class);
-        modelMapper.createTypeMap(EmpresaInputDTO.class, Empresa.class);
+        modelMapper.createTypeMap(EmpresaInputDTO.class, Empresa.class)
+                .addMappings(mapper -> {
+                    mapper.skip(Empresa::setCreatedAt);
+                    mapper.skip(Empresa::setUpdatedAt);
+                });
+        
         modelMapper.createTypeMap(Nota.class, NotaOutputDTO.class);
-        modelMapper.createTypeMap(NotaInputDTO.class, Nota.class);
+        modelMapper.createTypeMap(NotaInputDTO.class, Nota.class)
+                .addMappings(mapper -> {
+                    mapper.skip(Nota::setCreatedAt);
+                    mapper.skip(Nota::setUpdatedAt);
+                });
         
         return modelMapper;
     }
